@@ -7,23 +7,22 @@ import { Category } from './categories/categories.entity'
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.${process.env.NODE_ENV}.env`,
+      envFilePath: `.${process.env.NODE_ENV ?? 'development'}.env`,
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
+      useFactory: (config: ConfigService) => ({
+        uri: config.get<string>('DB_URL'),
+        type: 'postgres',
+        database: config.get<string>('DB_NAME'),
+        username: config.get<string>('DB_USER'),
+        password: config.get<string>('DB_PASSWORD'),
+        port: config.get<number>('DB_PORT'),
+        host: config.get<string>('DB_HOST'),
+        entities: [Category],
+        synchronize: true,
+      }),
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        return {
-          type: 'postgres',
-          database: 'general_market',
-          username: 'postgres',
-          password: 'root',
-          port: 5432,
-          host: 'localhost',
-          entities: [Category],
-          synchronize: true,
-        }
-      },
     }),
     CategoriesModule,
   ],

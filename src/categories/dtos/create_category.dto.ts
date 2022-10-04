@@ -1,11 +1,18 @@
-import { IsString, IsOptional } from 'class-validator'
+import { IsString, IsOptional, MinLength, MaxLength } from 'class-validator'
+import { VALIDATION_MESSAGES, VALIDATION_CONFIG } from '../config'
 
 export class CreateCategoryDto {
-  @IsString()
-  name: string
+  @IsString({
+    message: VALIDATION_MESSAGES.STRING,
+  })
+  @MinLength(VALIDATION_CONFIG.NAME_MIN_LENGTH, {
+    message: VALIDATION_MESSAGES.NAME_MIN_LENGTH,
+  })
+  @MaxLength(VALIDATION_CONFIG.NAME_MAX_LENGTH, {
+    message: VALIDATION_MESSAGES.NAME_MAX_LENGTH,
+  })
+  name: any
 
-  //TODO: change to a file type after creating a file upload middleware
-  @IsString()
   @IsOptional()
   image: string
 }
