@@ -1,18 +1,15 @@
-import { IsString, IsOptional, MinLength, MaxLength } from 'class-validator'
-import { VALIDATION_MESSAGES, VALIDATION_CONFIG } from '../config'
+import { IsString, MinLength, MaxLength } from 'class-validator'
+import { ValidationMessages, ValidationConfig } from '../config'
 
 export class CreateCategoryDto {
   @IsString({
-    message: VALIDATION_MESSAGES.STRING,
+    message: ValidationMessages.STRING,
   })
-  @MinLength(VALIDATION_CONFIG.NAME_MIN_LENGTH, {
-    message: VALIDATION_MESSAGES.NAME_MIN_LENGTH,
+  @MinLength(ValidationConfig.NAME_MIN_LENGTH, {
+    message: ValidationMessages.NAME_MIN_LENGTH,
   })
-  @MaxLength(VALIDATION_CONFIG.NAME_MAX_LENGTH, {
-    message: VALIDATION_MESSAGES.NAME_MAX_LENGTH,
+  @MaxLength(ValidationConfig.NAME_MAX_LENGTH, {
+    message: ValidationMessages.NAME_MAX_LENGTH,
   })
-  name: any
-
-  @IsOptional()
-  image: string
+  name: string
 }

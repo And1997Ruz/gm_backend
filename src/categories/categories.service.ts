@@ -8,7 +8,13 @@ import { CreateCategoryDto } from './dtos/create_category.dto'
 export class CategoriesService {
   constructor(@InjectRepository(Category) private repo: Repository<Category>) {}
 
-  async create(payload: CreateCategoryDto): Promise<Category> {
+  async create(payload: CreateCategoryDto, file: Express.Multer.File): Promise<Category> {
+    const newFilePath = file.path.replace('public\\', '')
+    if (file) {
+      Object.assign(payload, {
+        image: newFilePath,
+      })
+    }
     try {
       const category = this.repo.create(payload)
       return this.repo.save(category)
