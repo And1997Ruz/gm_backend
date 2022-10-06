@@ -34,6 +34,35 @@ export class CategoriesService {
     }
   }
 
+  async edit(id: number, payload: Partial<CategoryDto>, file: Express.Multer.File) {
+    let item: Category
+    if (file) {
+      const newFilePath = file.path.replace('public\\', '')
+      const formattedPath = (newFilePath as any).replaceAll('\\', '/')
+      Object.assign(payload, {
+        image: formattedPath,
+      })
+    }
+    item = await this.repo.findOneBy({ id: id })
+    if (!item) {
+      if (file) {
+        deleteFile(`/uploads/categories/${file.filename}`)
+      }
+      throw new NotFoundException(ErrorMessages.NOT_FOUND)
+    }
+    const oldImage = item.image
+    try {
+      Object.assign(item, payload)
+      const updatedItem = await this.repo.save(item)
+      if (file && oldImage) {
+        deleteFile(oldImage)
+      }
+      return updatedItem
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
   async deleteOne(id: number): Promise<void> {
     const item = await this.repo.findOneBy({ id: id })
     if (!item) throw new NotFoundException(ErrorMessages.NOT_FOUND)

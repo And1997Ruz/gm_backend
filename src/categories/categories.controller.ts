@@ -1,7 +1,8 @@
 import {
   Controller,
-  Post,
   Get,
+  Post,
+  Patch,
   Delete,
   Body,
   Param,
@@ -39,6 +40,21 @@ export class CategoriesController {
       throw new BadRequestException(ValidationMessages.FILE_TYPE)
     }
     return await this.categoriesService.create(body, file)
+  }
+
+  @Patch('/:id')
+  @UseFilters(new FileExceptionFilter(2))
+  @UseInterceptors(FileInterceptor('image', multerOptions))
+  async editCategory(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CategoryDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() request: Request,
+  ) {
+    if (request.fileTypeValidationError) {
+      throw new BadRequestException(ValidationMessages.FILE_TYPE)
+    }
+    return await this.categoriesService.edit(id, body, file)
   }
 
   @Delete('/:id')
