@@ -4,6 +4,7 @@ import { CategoriesModule } from './categories/categories.module'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Category } from './categories/categories.entity'
+import { ResponseModule } from './response/response.module'
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { Category } from './categories/categories.entity'
       inject: [ConfigService],
     }),
     CategoriesModule,
+    ResponseModule,
   ],
   controllers: [],
   providers: [],

@@ -8,6 +8,8 @@ export class FileExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp()
     const response = ctx.getResponse<Response>()
     const status = exception.getStatus()
+    const errorResponse: any = exception.getResponse()
+    const errorMessage = errorResponse?.message ?? ''
 
     if (status === 413) {
       return response.status(status).json({
@@ -15,9 +17,9 @@ export class FileExceptionFilter implements ExceptionFilter {
         message: `Максимальный размер файла ${this.sizeLimit}mb`,
       })
     }
-    return response.json({
+    return response.status(400).json({
       statusCode: status,
-      message: exception.message,
+      message: errorMessage ?? exception.message,
     })
   }
 }

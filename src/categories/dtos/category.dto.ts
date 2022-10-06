@@ -1,7 +1,7 @@
 import { IsString, MinLength, MaxLength } from 'class-validator'
 import { ValidationMessages, ValidationConfig } from '../config'
 
-export class CreateCategoryDto {
+export class CategoryDto {
   @IsString({
     message: ValidationMessages.STRING,
   })
