@@ -6,6 +6,7 @@ import { ResponseModule } from './response/response.module'
 import { RolesModule } from './roles/roles.module'
 import { TypeOrmConfig } from './config/typeorm.config'
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UsersModule } from './users/users.module';
     ResponseModule,
     RolesModule,
     UsersModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

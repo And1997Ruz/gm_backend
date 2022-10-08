@@ -29,7 +29,8 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   image: string | null
 
-  @Column()
+  //roleId 2 is a regular user
+  @Column({ default: 2 })
   roleId: number
 
   @ManyToOne(() => Role)

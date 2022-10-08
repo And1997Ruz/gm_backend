@@ -9,3 +9,7 @@ export const deleteFile = (filePath: string): void => {
     throw new InternalServerErrorException(ErrorMessages.FILE_DELETE_ERROR)
   }
 }
+
+export const getValidationMessage = (fieldName: string, message: string) => {
+  return `${fieldName} - ${message}`
+}
