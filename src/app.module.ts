@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common'
-import { ServeStaticModule } from '@nestjs/serve-static'
 import { CategoriesModule } from './categories/categories.module'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { Category } from './categories/categories.entity'
 import { ResponseModule } from './response/response.module'
+import { RolesModule } from './roles/roles.module'
+import { TypeOrmConfig } from './config/typeorm.config'
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -13,21 +14,13 @@ import { ResponseModule } from './response/response.module'
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
-      useFactory: (config: ConfigService) => ({
-        uri: config.get<string>('DB_URL'),
-        type: 'postgres',
-        database: config.get<string>('DB_NAME'),
-        username: config.get<string>('DB_USER'),
-        password: config.get<string>('DB_PASSWORD'),
-        port: config.get<number>('DB_PORT'),
-        host: config.get<string>('DB_HOST'),
-        entities: [Category],
-        synchronize: true,
-      }),
+      useFactory: (config: ConfigService) => TypeOrmConfig.getConfig(config),
       inject: [ConfigService],
     }),
     CategoriesModule,
     ResponseModule,
+    RolesModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [],

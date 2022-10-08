@@ -7,3 +7,13 @@ export const ErrorMessages = {
 export const ResponseMessages = {
   DELETE_SUCCESS: 'Ресурс был успешно удалён',
 }
+
+export enum RoleTypes {
+  ADMIN = 'admin',
+  USER = 'user',
+}
+
+export enum RoleTypeToRoleId {
+  ADMIN = 1,
+  USER = 2,
+}

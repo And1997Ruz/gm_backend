@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm/dist'
 import { Category } from './categories.entity'
-import { CategoryDto } from './dtos/category.dto'
+import { CreateCategoryDto, UpdateCategoryDto } from './dtos'
 import { ErrorMessages } from './../config'
 import { deleteFile } from 'src/helpers'
 
@@ -18,7 +18,7 @@ export class CategoriesService {
     }
   }
 
-  create(payload: CategoryDto, file: Express.Multer.File): Promise<Category> {
+  create(payload: CreateCategoryDto, file: Express.Multer.File): Promise<Category> {
     if (file) {
       const newFilePath = file.path.replace('public\\', '')
       const formattedPath = (newFilePath as any).replaceAll('\\', '/')
@@ -34,7 +34,7 @@ export class CategoriesService {
     }
   }
 
-  async edit(id: number, payload: Partial<CategoryDto>, file: Express.Multer.File) {
+  async edit(id: number, payload: Partial<UpdateCategoryDto>, file: Express.Multer.File) {
     let item: Category
     if (file) {
       const newFilePath = file.path.replace('public\\', '')

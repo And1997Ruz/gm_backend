@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express/multer'
 import { CategoriesService } from './categories.service'
-import { CategoryDto } from './dtos/category.dto'
+import { CreateCategoryDto, UpdateCategoryDto } from './dtos'
 import { FileExceptionFilter } from 'src/exceptions/file.filter'
 import { multerOptions, ValidationMessages } from './config'
 import { Request, Response as ResponseType } from 'express'
@@ -35,7 +35,7 @@ export class CategoriesController {
   @Post()
   @UseFilters(new FileExceptionFilter(2))
   @UseInterceptors(FileInterceptor('image', multerOptions))
-  async createCategory(@Body() body: CategoryDto, @UploadedFile() file: Express.Multer.File, @Req() request: Request) {
+  async createCategory(@Body() body: CreateCategoryDto, @UploadedFile() file: Express.Multer.File, @Req() request: Request) {
     if (request.fileTypeValidationError) {
       throw new BadRequestException(ValidationMessages.FILE_TYPE)
     }
@@ -47,7 +47,7 @@ export class CategoriesController {
   @UseInterceptors(FileInterceptor('image', multerOptions))
   async editCategory(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: CategoryDto,
+    @Body() body: UpdateCategoryDto,
     @UploadedFile() file: Express.Multer.File,
     @Req() request: Request,
   ) {
