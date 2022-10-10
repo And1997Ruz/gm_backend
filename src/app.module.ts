@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, CacheModule } from '@nestjs/common'
 import { CategoriesModule } from './categories/categories.module'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module'
 import { MailerModule } from '@nestjs-modules/mailer/dist'
 import { MailerConfig } from './config/mailer.config'
 import { MailModule } from './mail/mail.module'
+import { RedisConfig } from './config/redis.config'
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MailModule } from './mail/mail.module'
       inject: [ConfigService],
       useFactory: (config: ConfigService) => MailerConfig.getConfig(config),
     }),
+    CacheModule.register(RedisConfig.getConfig()),
     TypeOrmModule.forRootAsync({
       useFactory: (config: ConfigService) => TypeOrmConfig.getConfig(config),
       inject: [ConfigService],

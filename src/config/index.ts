@@ -6,6 +6,10 @@ export const ErrorMessages = {
 
 export const ResponseMessages = {
   DELETE_SUCCESS: 'Ресурс был успешно удалён',
+  EMAIL_CODE_SENT: 'Код подтверждения был выслан вам на почту',
+  EMAIL_CODE_DOESNT_EXIST: 'Указан неверный адрес эл.почты, или код подтверждения не найден',
+  EMAIL_CODE_INCORRECT: 'Неверный код подтверждения',
+  EMAIL_VERIFIED: 'Адрес эл.почты был успешно подтвержден. Вы должны зарегистрироваться в течении 1 часа',
 }
 
 export enum RoleTypes {

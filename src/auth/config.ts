@@ -9,6 +9,7 @@ export enum ValidationConfig {
 
 export const ValidationMessages = {
   STRING: 'Значение должно быть строкой',
+  EMPTY: 'Поле не должно быть пустым',
   NAME_MIN_LENGTH: `Минимальное кол-во символов: ${ValidationConfig.NAME_MIN_LENGTH}`,
   NAME_MAX_LENGTH: `Максимальное кол-во символов: ${ValidationConfig.NAME_MAX_LENGTH}`,
   EMAIL_MIN_LENGTH: `Минимальное кол-во символов: ${ValidationConfig.EMAIL_MIN_LENGTH}`,
