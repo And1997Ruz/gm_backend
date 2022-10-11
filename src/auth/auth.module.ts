@@ -6,7 +6,7 @@ import { MailModule } from './../mail/mail.module'
 import { ResponseModule } from 'src/response/response.module'
 
 @Module({
-  imports: [UsersModule, MailModule, ResponseModule],
+  imports: [UsersModule, MailModule, ResponseModule, UsersModule],
   controllers: [AuthController],
   providers: [AuthService],
 })

@@ -18,6 +18,10 @@ export class RedisConfig {
     return `${email}_is_verified`
   }
 
+  static getCanChangePasswordKey(email: string) {
+    return `${email}_can_change_passsword`
+  }
+
   static sentCodeTTL = 600 // 10 minutes
   static verifiedEmailTTL = 3600 // 1 hour
 }

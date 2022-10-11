@@ -1,4 +1,4 @@
-import { Module, CacheModule } from '@nestjs/common'
+import { Module, NestModule, CacheModule, MiddlewareConsumer } from '@nestjs/common'
 import { CategoriesModule } from './categories/categories.module'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -11,6 +11,7 @@ import { MailerModule } from '@nestjs-modules/mailer/dist'
 import { MailerConfig } from './config/mailer.config'
 import { MailModule } from './mail/mail.module'
 import { RedisConfig } from './config/redis.config'
+import { CurrentUserMiddleware } from './middleware/currentUser.middleware'
 
 @Module({
   imports: [
@@ -38,4 +39,8 @@ import { RedisConfig } from './config/redis.config'
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CurrentUserMiddleware).forRoutes('*')
+  }
+}

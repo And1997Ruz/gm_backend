@@ -6,6 +6,11 @@ interface ResponseBody {
   data?: any
 }
 
+interface Cookie {
+  key: string
+  value: string
+}
+
 @Injectable()
 export class ResponseService {
   constructor() {}

@@ -77,3 +77,33 @@ export class CodeVerifyDto {
   @IsNotEmpty({ message: getValidationMessage('code', ValidationMessages.EMPTY) })
   code: string
 }
+
+export class LoginDto {
+  @IsEmail(
+    {},
+    {
+      message: getValidationMessage('email', ValidationMessages.EMAIL),
+    },
+  )
+  @MinLength(ValidationConfig.EMAIL_MIN_LENGTH, {
+    message: getValidationMessage('email', ValidationMessages.EMAIL_MIN_LENGTH),
+  })
+  @MaxLength(ValidationConfig.EMAIL_MAX_LENGTH, {
+    message: getValidationMessage('email', ValidationMessages.EMAIL_MAX_LENGTH),
+  })
+  email: string
+
+  @IsCustomPassword({
+    message: getValidationMessage('password', ValidationMessages.PASSWORD_FORMAT),
+  })
+  @IsString({
+    message: getValidationMessage('password', ValidationMessages.STRING),
+  })
+  @MinLength(ValidationConfig.PASSWORD_MIN_LENGTH, {
+    message: getValidationMessage('password', ValidationMessages.PASSWORD_MIN_LENGTH),
+  })
+  @MaxLength(ValidationConfig.PASSWORD_MAX_LENGTH, {
+    message: getValidationMessage('password', ValidationMessages.PASSWORD_MAX_LENGTH),
+  })
+  password: string
+}
