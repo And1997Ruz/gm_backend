@@ -18,6 +18,10 @@ export class RedisConfig {
     return `${email}_is_verified`
   }
 
+  static getForgotPassowrdKey(email: string) {
+    return `${email}_forgot_password`
+  }
+
   static getCanChangePasswordKey(email: string) {
     return `${email}_can_change_passsword`
   }

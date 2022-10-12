@@ -16,7 +16,10 @@ export class CurrentUserMiddleware implements NestMiddleware {
     }
     try {
       const userId = JwtTokenService.getUserIdFromToken(accessToken)
-      if (!userId) throw new UnauthorizedException(ErrorMessages.AUTH_ERROR)
+      if (!userId) {
+        request.currentUser = null
+        return next()
+      }
       const user = await User.findOneBy({ id: userId })
       request.currentUser = user
       return next()

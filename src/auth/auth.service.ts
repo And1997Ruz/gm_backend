@@ -17,10 +17,23 @@ export class AuthService {
   ) {}
 
   async sendEmailVerificationCode(email: string, name: string): Promise<void> {
+    const existingEmail = await this.cacheService.get(RedisConfig.getEmailCodeKey(email))
+    if (existingEmail) throw new ForbiddenException(ErrorMessages.EMAIL_ALREADY_SENT)
+
     const randomCode = Math.floor(1000 + Math.random() * 9000)
-    await this.mailService.sendMail(email, name, randomCode)
+    await this.mailService.sendEmailVerificationMail(email, name, randomCode)
     await this.cacheService.set(RedisConfig.getEmailCodeKey(email), randomCode, { ttl: RedisConfig.sentCodeTTL })
     await this.cacheService.set(RedisConfig.getIsVerifiedEmailKey(email), false, { ttl: RedisConfig.verifiedEmailTTL })
+  }
+
+  async sendForgotPasswordCode(email: string): Promise<void> {
+    const existingEmail = await this.cacheService.get(RedisConfig.getForgotPassowrdKey(email))
+    if (existingEmail) throw new ForbiddenException(ErrorMessages.EMAIL_ALREADY_SENT)
+
+    const randomCode = Math.floor(1000 + Math.random() * 9000)
+    await this.mailService.sendForgotPasswordMail(email, randomCode)
+    await this.cacheService.set(RedisConfig.getForgotPassowrdKey(email), randomCode, { ttl: RedisConfig.sentCodeTTL })
+    await this.cacheService.set(RedisConfig.getCanChangePasswordKey(email), false, { ttl: RedisConfig.verifiedEmailTTL })
   }
 
   async verifyEmailCode(email: string, code: string): Promise<void> {
@@ -32,9 +45,30 @@ export class AuthService {
     this.cacheService.del(RedisConfig.getEmailCodeKey(email))
   }
 
-  async checkIsEmailVerified(email: string) {
+  async verifyForgotPasswordCode(email: string, code: string): Promise<void> {
+    const cachedCode = await this.cacheService.get<number>(RedisConfig.getForgotPassowrdKey(email))
+    if (!cachedCode) throw new HttpException(ErrorMessages.EMAIL_CODE_DOESNT_EXIST, 400)
+    if (cachedCode.toString() !== code) throw new HttpException(ErrorMessages.EMAIL_CODE_INCORRECT, 400)
+
+    await this.cacheService.set(RedisConfig.getCanChangePasswordKey(email), true, { ttl: RedisConfig.verifiedEmailTTL })
+    this.cacheService.del(RedisConfig.getForgotPassowrdKey(email))
+  }
+
+  async checkIsEmailVerifiedOrExists(email: string) {
+    const isEmailInUse = await this.usersService.isEmailInUse(email)
+    if (isEmailInUse) throw new ForbiddenException(ErrorMessages.EMAIL_ALREADY_IN_USE)
+
     const isVerified = await this.cacheService.get(RedisConfig.getIsVerifiedEmailKey(email))
     if (!isVerified) throw new ForbiddenException(ErrorMessages.EMAIL_NOT_VERIFIED)
+  }
+
+  async checkCanResetPassword(email: string) {
+    const isVerified = await this.cacheService.get(RedisConfig.getCanChangePasswordKey(email))
+    if (!isVerified) throw new ForbiddenException(ErrorMessages.EMAIL_NOT_VERIFIED)
+  }
+
+  async revokePermissionToResetPassword(email: string) {
+    await this.cacheService.del(RedisConfig.getCanChangePasswordKey(email))
   }
 
   async registerUser(payload: CreateUserDto) {

@@ -1,9 +1,9 @@
 import { Injectable, HttpException } from '@nestjs/common'
-import { CreateUserDto } from './../auth/dtos/index'
+import { CreateUserDto, ResetPasswordDto } from './../auth/dtos/index'
 import { InjectRepository } from '@nestjs/typeorm/dist'
 import { Repository } from 'typeorm'
 import { User } from './users.entity'
-import { ResponseMessages, ErrorMessages } from 'src/config'
+import { ErrorMessages } from 'src/config'
 
 @Injectable()
 export class UsersService {
@@ -20,9 +20,21 @@ export class UsersService {
     return user
   }
 
+  async isEmailInUse(email: string) {
+    const user = await this.repo.findOneBy({ email })
+    if (!user) return false
+    return true
+  }
+
   async getUserById(id: number) {
     const user = await this.repo.findOneBy({ id })
     if (!user) throw new HttpException(ErrorMessages.NOT_FOUND, 404)
     return user
+  }
+
+  async resetPassword(payload: ResetPasswordDto) {
+    const user = await this.getUserByEmail(payload.email)
+    Object.assign(user, { password: payload.password })
+    const updatedUser = await this.repo.save(user)
   }
 }

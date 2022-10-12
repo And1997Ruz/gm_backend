@@ -65,6 +65,40 @@ export class EmailVerifyDto {
   name: string
 }
 
+export class ForgotPasswordDto {
+  @IsEmail(
+    {},
+    {
+      message: getValidationMessage('email', ValidationMessages.EMAIL),
+    },
+  )
+  email: string
+}
+
+export class ResetPasswordDto {
+  @IsEmail(
+    {},
+    {
+      message: getValidationMessage('email', ValidationMessages.EMAIL),
+    },
+  )
+  email: string
+
+  @IsCustomPassword({
+    message: getValidationMessage('password', ValidationMessages.PASSWORD_FORMAT),
+  })
+  @IsString({
+    message: getValidationMessage('password', ValidationMessages.STRING),
+  })
+  @MinLength(ValidationConfig.PASSWORD_MIN_LENGTH, {
+    message: getValidationMessage('password', ValidationMessages.PASSWORD_MIN_LENGTH),
+  })
+  @MaxLength(ValidationConfig.PASSWORD_MAX_LENGTH, {
+    message: getValidationMessage('password', ValidationMessages.PASSWORD_MAX_LENGTH),
+  })
+  password: string
+}
+
 export class CodeVerifyDto {
   @IsEmail(
     {},

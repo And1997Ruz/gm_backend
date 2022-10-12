@@ -1,25 +1,18 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  Req,
-  Response,
-  HttpException,
-  InternalServerErrorException,
-  UseGuards,
-} from '@nestjs/common'
-import { CreateUserDto, EmailVerifyDto, CodeVerifyDto, LoginDto } from './dtos/index'
+import { Controller, Post, Get, Body, Req, Response, HttpException, UseGuards } from '@nestjs/common'
+import { CreateUserDto, EmailVerifyDto, CodeVerifyDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from './dtos/index'
 import { AuthService } from './auth.service'
 import { ResponseService } from './../response/response.service'
 import { ResponseMessages } from './../config'
 import { Response as ResponseType, Request } from 'express'
 import { CookieConfig } from 'src/config/cookie.config'
 import { AuthGuard } from './../guards/authGuard'
+import { RefreshGuard } from './../guards/refreshGuard'
+import { JwtTokenService } from 'src/helpers/jwt'
+import { UsersService } from 'src/users/users.service'
 
 @Controller('/api/auth')
 export class AuthController {
-  constructor(private authService: AuthService, private reponseService: ResponseService) {}
+  constructor(private authService: AuthService, private reponseService: ResponseService, private usersService: UsersService) {}
 
   @Post('/email-verify')
   async sendVerificationCode(@Body() body: EmailVerifyDto, @Response() response: ResponseType) {
@@ -27,7 +20,7 @@ export class AuthController {
       await this.authService.sendEmailVerificationCode(body.email, body.name)
       this.reponseService.sendResponse(response, 200, ResponseMessages.EMAIL_CODE_SENT)
     } catch (error) {
-      throw new InternalServerErrorException()
+      throw new HttpException(error.message, error.status)
     }
   }
 
@@ -44,7 +37,7 @@ export class AuthController {
   @Post('/register')
   async register(@Body() body: CreateUserDto, @Response() response: ResponseType) {
     try {
-      await this.authService.checkIsEmailVerified(body.email)
+      await this.authService.checkIsEmailVerifiedOrExists(body.email)
       const data = await this.authService.registerUser(body)
 
       response.cookie('refreshToken', data.tokens.refreshToken, CookieConfig.getCookieConfig())
@@ -73,20 +66,48 @@ export class AuthController {
   }
 
   @Post('/logout')
-  logout() {
-    //add auth guard
-    //response.clearCookie('name')
+  @UseGuards(AuthGuard)
+  logout(@Response() response: ResponseType) {
+    response.clearCookie(CookieConfig.REFRESH_COOKIE_KEY)
+    this.reponseService.sendResponse(response, 200, ResponseMessages.LOGOUT_SUCCESS)
   }
 
-  @Post('/forgot-password')
-  resetPassword() {}
+  @Post('/forgot-password-email')
+  async sendForgotPasswordCode(@Body() body: ForgotPasswordDto, @Response() response: ResponseType) {
+    try {
+      await this.usersService.getUserByEmail(body.email)
+      await this.authService.sendForgotPasswordCode(body.email)
+      this.reponseService.sendResponse(response, 200, ResponseMessages.EMAIL_CODE_SENT)
+    } catch (error) {
+      throw new HttpException(error.message, error.status)
+    }
+  }
+
+  @Post('/forgot-password-code')
+  async verifyForgotPasswordCode(@Body() body: CodeVerifyDto, @Response() response: ResponseType) {
+    try {
+      await this.authService.verifyForgotPasswordCode(body.email, body.code)
+      this.reponseService.sendResponse(response, 200, ResponseMessages.FORGOT_PASSWORD_VERIFIED)
+    } catch (error) {
+      throw new HttpException(error.message, error.status)
+    }
+  }
+
+  @Post('/reset-password')
+  async resetPassword(@Body() body: ResetPasswordDto, @Response() response: ResponseType) {
+    await this.authService.checkCanResetPassword(body.email)
+    await this.usersService.resetPassword(body)
+    await this.authService.revokePermissionToResetPassword(body.email)
+    this.reponseService.sendResponse(response, 200, ResponseMessages.PASSWORD_RESET)
+  }
 
   @Get('/refresh')
-  @UseGuards(AuthGuard)
-  getRefreshToken(@Req() request: Request) {
-    const key = CookieConfig.REFRESH_COOKIE_KEY
-    const cookie = request.signedCookies[key]
-    const user = request.currentUser
-    return { cookie, user }
+  @UseGuards(RefreshGuard)
+  getRefreshToken(@Req() request: Request, @Response() response: ResponseType) {
+    const tokens = JwtTokenService.createTokens(request.currentUser)
+    response.cookie(CookieConfig.REFRESH_COOKIE_KEY, tokens.refreshToken, CookieConfig.getCookieConfig())
+    this.reponseService.sendResponse(response, 200, ResponseMessages.REFRESH_SUCCESS, {
+      newAccessToken: tokens.accessToken,
+    })
   }
 }
